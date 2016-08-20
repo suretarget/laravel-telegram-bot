@@ -16,6 +16,10 @@ class Update extends stdClass
         $this->fromString($update);
         $this->fromObject($update);
         $this->fromArray($update);
+
+        $this->command      = $this->command();
+        $this->commandValue = $this->commandValue();
+        $this->text         = $this->text();
     }
 
     /**
@@ -65,25 +69,13 @@ class Update extends stdClass
     }
 
     /**
-     * Access methods like properties.
-     *
-     * @param  string $key
-     *
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        return $this->{$key}();
-    }
-
-    /**
      * Get text from the update.
      *
      * @return mixed
      */
     public function text()
     {
-        return $this->message->text ?? null;
+        return $this->message->text ?? $this->edited_message->text ?? null;
     }
 
     /**
@@ -93,7 +85,7 @@ class Update extends stdClass
      */
     public function parseCommand():array
     {
-        $text = $this->message->text ?? '';
+        $text = $this->message->text ?? $this->edited_message->text ?? '';
 
         if (preg_match('/^(\:|\/)(\S+)(.*?)?$/', $text, $matches)) {
             return [

@@ -24,11 +24,12 @@ trait ProxiesManagerMethods
         'sendContact',
         'sendChatAction',
 
-        'getTriggerInfo',
-        'getTriggerName',
-        'getTriggerData',
-        'keepTrigger',
-        'runsAfter'
+        'getStateInfo',
+        'getStateName',
+        'getStateData',
+        'keepState',
+        'respondsToState',
+        'respondsToStates'
     ];
 
     /**
@@ -37,7 +38,8 @@ trait ProxiesManagerMethods
      * @var array
      */
     protected $proxifiedMethods = [
-        'registerTrigger'
+        'registerState',
+        'setState'
     ];
 
     /**

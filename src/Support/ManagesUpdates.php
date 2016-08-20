@@ -9,7 +9,7 @@ use SumanIon\TelegramBot\Exceptions\StopActions;
 trait ManagesUpdates
 {
     use ManagesBotUsers;
-    use ManagesActionTriggers;
+    use ManagesStates;
 
     /**
      * Get all new bot updates.
@@ -75,6 +75,6 @@ trait ManagesUpdates
 
         }
 
-        $this->saveTrigger($user);
+        $this->saveState($user);
     }
 }
