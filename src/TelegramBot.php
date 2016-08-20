@@ -42,4 +42,16 @@ class TelegramBot extends Model
     {
         return new $this->manager($this);
     }
+
+    /**
+     * Get bot where manager matches argument.
+     *
+     * @param  string $manager
+     *
+     * @return \SumanIon\TelegramBot\TelegramBot
+     */
+    public static function withManager(string $manager)
+    {
+        return static::where('manager', $manager)->firstOrFail();
+    }
 }

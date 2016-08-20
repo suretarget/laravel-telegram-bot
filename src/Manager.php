@@ -9,6 +9,7 @@ abstract class Manager
     use Support\SendsApiRequests;
     use Support\ManagesUpdates;
     use Support\ManagesWebhooks;
+    use Support\NotifiesAllUsers;
 
     /**
      * Actions are the best way to make the bot interactive.
