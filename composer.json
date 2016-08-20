@@ -1,0 +1,25 @@
+{
+    "name": "sumanion/laravel-telegram-bot",
+    "description": "An expressive way to manage Telegram Bots with Laravel",
+    "keywords": ["laravel", "telegram", "bot", "manager"],
+    "type": "laravel-package",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ion Suman",
+            "email": "sumanion122@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7.0",
+        "laravel/framework": "5.3.*",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "SumanIon\\TelegramBot\\": "src/"
+        }
+    }
+}
