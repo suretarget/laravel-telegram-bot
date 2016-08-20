@@ -24,4 +24,16 @@ class {{name}} extends Manager
     {
         return '';
     }
+
+    /**
+     * This method is triggered when new bot user is registered.
+     *
+     * @param  \SumanIon\TelegramBot\TelegramBotUser $user
+     *
+     * @return void
+     */
+    public function onNewUser($user)
+    {
+        //
+    }
 }

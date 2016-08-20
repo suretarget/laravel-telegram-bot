@@ -21,11 +21,26 @@ trait ManagesBotUsers
         $data   = $update->from ?? $update->chat;
         $user   = $this->bot->users()->where('chat_id', $data->id ?? $data->chat_id)->first();
 
-        return $user ?? $this->bot->users()->create([
-            'chat_id'    => $data->id ?? $data->chat_id,
-            'first_name' => $data->first_name ?? '',
-            'last_name'  => $data->last_name ?? '',
-            'username'   => $data->username ?? ''
-        ]);
+        if (!$user) {
+            $user = $this->bot->users()->create([
+                'chat_id'    => $data->id ?? $data->chat_id,
+                'first_name' => $data->first_name ?? '',
+                'last_name'  => $data->last_name ?? '',
+                'username'   => $data->username ?? ''
+            ]);
+            $this->onNewUser($user);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Trigger this method when new user is registered.
+     *
+     * @return void
+     */
+    public function onNewUser($user)
+    {
+
     }
 }
