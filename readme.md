@@ -269,6 +269,8 @@ $manager->notify(function ($user, $manager) {
 This is the class that makes the *Telegram Bot Manager* so powerful,
 and it contains all the methods you may need to create any kind of bot.
 
+> **Note:** All *Managers* by default are stored in `/app/Bots/` folder.
+
 *Lets have some fun with our bot:*
 
 ```php
@@ -302,7 +304,134 @@ $manager->notify(function ($user, $manager) {
 ```
 
 #### `\SumanIon\TelegramBot\Update`
+
+This class contains all information about current *Update*.
+An *Update* means that the bot user tries to interact with the bot in the chat.
+*(For example when user sends a message to the bot, this is an Update;*
+*When user sends a photo to the bot, this is also an Update)*.
+
+*Example:*
+
+*Let's imagine we have an user and he/she send a message to the bot:*
+
+```
+User: Hello!
+```
+
+*This is an Update, and it's contents may look like the following:*
+
+```json
+{
+    "updateid": 123456789,
+    "message": {
+        "messageid": 123456789,
+        "from": {
+            "id": 123456789,
+            "firstname": "Ion",
+            "lastname": "Suman",
+            "username": "sumanion"
+        },
+        "chat": {
+            "chat_id": 123456789,
+            "firstname": "Ion",
+            "lastname": "Suman",
+            "username": "sumanion"
+        },
+        "date": 123456789,
+        "text": "Hello!"
+    }
+}
+```
+
+*By default update is received as `JSON` string,*
+*but it is then converted to the `Update` object to add additional flexibility.*
+*You can access information from the Update like object properties:*
+
+```php
+// Get the text of the message
+echo $update->message->text; // Hello!
+```
+
 #### `\SumanIon\TelegramBot\Action`
+
+**The most powerful feature** of the *Telegram Bot Manager* are the *Actions*.
+An *Action* is a class that defines how bot will process received *Updates*.
+An *Update* may have as many *Actions* as you want.
+They all may respond to a single *Update* or they can chose specific updates
+which match their requirements.
+
+> **Note:** All *Actions* by default are stored in `/app/Bots/Actions/` folder.
+
+To create an action, run the following artisan command:
+
+```bash
+php artisan telegram:action ActionClassName
+```
+
+*For example:*
+
+```bash
+php artisan telegram:action SayHello
+```
+
+Then, you have to add the action's class name to the `$actions` array property
+from the bot manager.
+
+Open the bot manager class file *(in our example `/app/Bots/FirstTelegramBot.php`)*
+with your favorite text editor and add the action.
+
+*In our example this will look like:*
+
+```php
+protected $actions = [
+    Actions\SayHello::class,
+];
+```
+
+All *Actions* come with some default methods. The main method we are interested in
+is the `handle()` method. This method describes how the *Action* should respond to the *Update*.
+
+Open the action class file with your favorite text editor
+*(in our example `/app/Bots/Actions/SayHello.php`)*.
+
+Next, let's add some functionality.
+Let's repeat the example we had earlier with some code.
+
+*We want to respond to user with `Hello, User!` when the user says hello:*
+
+```php
+public function handle()
+{
+    $this->sendMessage('Hello, User!');
+}
+```
+
+Now, when the user will send a message to the bot,
+he/she will receive a response message with the text `Hello, User!`.
+
+*Now let's make it more dynamic:*
+
+```php
+public function handle()
+{
+    $this->sendMessage("Hello, {$this->user->first_name}");
+}
+```
+
+This time we will respond with `Hello, ` followed by the user's first name.
+
+*Now let's make the bot more smart, so it will respond only when user says `Hello`:*
+
+```php
+public function handle()
+{
+    $this->respondsToPattern('/^hello/i');
+    $this->sendMessage("Hello, {$this->user->first_name}!");
+}
+```
+
+This time the user will receive the response message `Hello, User!`
+only when he/she will send a message starting with the word `hello`.
 
 &nbsp;
 
