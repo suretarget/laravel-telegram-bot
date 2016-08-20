@@ -18,6 +18,7 @@ class TelegramBotServiceProvider extends ServiceProvider
         \SumanIon\TelegramBot\Commands\DeleteBots::class,
         \SumanIon\TelegramBot\Commands\ManageWebhooks::class,
         \SumanIon\TelegramBot\Commands\CreateBotActions::class,
+        \SumanIon\TelegramBot\Commands\ManageBotUserPermissions::class,
     ];
 
     /**

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TelegramBotUser extends Model
 {
+    use Support\ManagesBotUserPermissions;
+
     /** @var array */
     protected $fillable = [
         'telegram_bot_id',
