@@ -135,7 +135,7 @@ and to assign them the *Manager* you have created.
 To register the bot in your Laravel application run the following artisan command:
 
 ```
-php artisan telegram:bot "Full\Qualified\BotManagerClassName"
+php artisan telegram:bot "Fully\Qualified\BotManagerClassName"
 ```
 
 **In our example it will look like this:**
@@ -169,7 +169,7 @@ instantly send response back to the chat `Bot: Hello, User!`.*
 To set up the Webhook, run the following artisan command:
 
 ```
-php artisan telegram:webhook "Full\Qualified\BotManagerClassName"
+php artisan telegram:webhook "Fully\Qualified\BotManagerClassName"
 ```
 
 **In our example it will look like:**
@@ -187,3 +187,123 @@ php artisan telegram:webhook "App\Bots\FirstTelegramBot"
 > **Note:** You can use `valet share` to get public `HTTPS` link
   to your local project and you will be able to test Webhooks on a dev machine.
   [Learn more about `Laravel Valet`](https://laravel.com/docs/master/valet).
+
+&nbsp;
+
+*At this point your bot is ready and it waits for you to make it awesome!*
+*Now let's learn how to manage the bot.*
+
+&nbsp;
+
+## Core Concepts
+
+#### `\SumanIon\TelegramBot\TelegramBot`
+
+This class is an `Eloquent` model. It represens the bot and
+helps to connect bots with their users and
+ensures that every bot has an unique `webhook_token`.
+
+*Example:*
+
+```php
+// Get the bot instance from our previous examples
+$bot = \SumanIon\TelegramBot\TelegramBot::withManager('App\\Bots\\FirstTelegramBot');
+
+// List all users of this bot
+$bot_users = $bot->users;
+```
+
+#### `\SumanIon\TelegramBot\TelegramBotUser`
+
+This class is an `Eloquent` model. It represents every user of the bot.
+Every Telegram user who interacts with the bot is registered automatically
+by the manager. This helps to know who is using the bot and to define
+custom permissions to users.
+
+#### `\SumanIon\TelegramBot\TelegramBotPermission`
+
+This class is an `Eloquent` model.
+Bot users may have permissions, and you can set custom permissions to every user.
+A permission helps to limit or extend things an user can do with the bot.
+
+*Let's create some permissions:*
+
+```bash
+# To create a permission run the following artisan command
+php artisan telegram:permission can_receive_notifications
+
+# To remove a premission run the following artisan command
+php artisan telegram:permission my_permission --remove
+```
+
+*Now let's grant the user permission to receive notifications:*
+
+```php
+$bot_user = \SumanIon\TelegramBot\TelegramBotUser::find(1);
+$bot_user->addPermission('can_receive_notifications');
+```
+
+*Now imagine that we have a blog and you want to notify*
+*your bot users that you have a new post:*
+
+```php
+// ... A new post was created ...
+
+// Get instance of the bot
+$bot = \SumanIon\TelegramBot\TelegramBot::withManager('App\\Bots\\FirstTelegramBot');
+
+// Get bot manager
+$manager = $bot->getManager();
+
+// Notify all bot users that a new post was created,
+// but only the users who have the permission to receive notifications.
+$manager->notify(function ($user, $manager) {
+    if ($user->hasPermission('can_receive_notifications')) {
+        $manager->sendMessage('A new blog post was created! Check it out!');
+    }
+});
+```
+
+#### `\SumanIon\TelegramBot\Manager`
+
+This is the class that makes the *Telegram Bot Manager* so powerful,
+and it contains all the methods you may need to create any kind of bot.
+
+*Lets have some fun with our bot:*
+
+```php
+// Get instance of the bot
+$bot = \SumanIon\TelegramBot\TelegramBot::withManager('App\\Bots\\FirstTelegramBot');
+
+// Get the manager
+$manager = $bot->getManager();
+
+// Get a user of our bot
+$bot_user = $bot->users[0];
+
+// Send him some messages
+$manager->sendMessage($bot_user, 'Hello');
+$manager->sendMessage($bot_user, 'How are you?');
+
+// .. or maybe let's send him a photo
+$manager->sendPhoto($bot_user, base_path('welcome.jpg'));
+
+// .. or maybe a document
+$manager->sendDocument($bot_user, base_path('welcome.docx'));
+
+// Let's greet all users
+$manager->notify('Hello!');
+
+// .. but we have a nice photo, let's send it to all users
+$manager->notify(function ($user, $manager) {
+    $manager->sendPhoto($user, base_path('welcome.jpg'));
+});
+
+```
+
+#### `\SumanIon\TelegramBot\Update`
+#### `\SumanIon\TelegramBot\Action`
+
+&nbsp;
+
+> **Note:** Documentations is not finished yet. Complete documentation comming soon.
