@@ -41,6 +41,21 @@ in a nice way with beautiful and easy to understand code.
     - [Step 3: Add your bot's API Token to the Manager](#step-3-add-your-bots-api-token-to-the-manager)
     - [Step 4: Register the bot in your application](#step-4-register-the-bot-in-your-application)
     - [Step 5: Set up Webhook (optional)](#step-5-set-up-webhook-optional)
+- [Core Components](#core-components)
+    - [`\SumanIon\TelegramBot\TelegramBot`](#sumaniontelegrambottelegrambot)
+    - [`\SumanIon\TelegramBot\TelegramBotUser`](#sumaniontelegrambottelegrambotuser)
+    - [`\SumanIon\TelegramBot\TelegramBotPermission`](#sumaniontelegrambottelegrambotpermission)
+    - [`\SumanIon\TelegramBot\Manager`](#sumaniontelegrambotmanager)
+    - [`\SumanIon\TelegramBot\Update`](#sumaniontelegrambotupdate)
+    - [`\SumanIon\TelegramBot\Action`](#sumaniontelegrambotaction)
+- [Available methods](#available-methods)
+    - [class `TelegramBotUser`](#class-telegrambotuser)
+        - [`permissions()`](#permissions)
+        - [`getPermission($permission):TelegramBotPermission`](#getpermissionpermissiontelegrambotpermission)
+        - [`hasPermission($permission):bool`](#haspermissionpermissionbool)
+        - [`addPermission($permission):void`](#addpermissionpermissionvoid)
+        - [`removePermission($permission):void`](#removepermissionpermissionvoid)
+        - [`removeAllPermissions():void`](#removeallpermissionsvoid)
 
 ## Installation
 
@@ -195,7 +210,7 @@ php artisan telegram:webhook "App\Bots\FirstTelegramBot"
 
 &nbsp;
 
-## Core Concepts
+## Core Components
 
 #### `\SumanIon\TelegramBot\TelegramBot`
 
@@ -433,6 +448,72 @@ public function handle()
 This time the user will receive the response message `Hello, User!`
 only when he/she will send a message starting with the word `hello`.
 
-&nbsp;
+# Available methods
 
-> **Note:** Documentations is not finished yet. Complete documentation comming soon.
+> **Note:** All available classes are within `\SumanIon\TelegramBot\` namespace.
+
+### class `TelegramBotUser`
+
+##### `permissions()`
+
+`Eloquent` relationship which returns all permissions of the user.
+
+##### `getPermission($permission):TelegramBotPermission`
+
+This method just returns an instance of `TelegramBotPermission` based on the `$permission`.
+
+- `$permission` (`string`, `TelegramBotPermission`)
+
+##### `hasPermission($permission):bool`
+
+Use this method to check if user has a specific permission.
+
+- `$permission` (`string`, `TelegramBotPermission`)
+
+*Example code:*
+
+```php
+// Send a message to the user if it has required permission.
+if ($bot_user->hasPermission('can_receive_notifications')) {
+    $bot_manager->sendMessage($bot_user, 'Hello!');
+}
+```
+
+##### `addPermission($permission):void`
+
+This method will add a new Permission to the user.
+
+- `$permission` (`string`, `TelegramBotPermission`)
+
+*Example code:*
+
+```php
+// This will search a Permission with the name of 'can_receive_notifications'
+// and if it exists it will add that permission to the user.
+// Note: to create a new permission use artisan command: telegarm:permission {name}
+$bot_user->addPermission('can_receive_notifications');
+```
+
+##### `removePermission($permission):void`
+
+Remove a permission from the user.
+
+- `$permission` (`string`, `TelegramBotPermission`)
+
+*Example code:*
+
+```php
+// This will remove a permission with name 'can_receive_notifications' from the user.
+// If the user doesn't have this permission nothing will happen.
+$bot_user->removePermission('can_receive_notifications');
+```
+
+##### `removeAllPermissions():void`
+
+Remove all permissions from the user.
+
+*Example code:*
+
+```php
+$bot_user->removeAllPermissions();
+```
