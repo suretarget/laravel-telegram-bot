@@ -29,34 +29,6 @@ in a nice way with beautiful and easy to understand code.
   and at the first look it can seem overwhelming, but trust me, when you done it at least one time,
   next times it will take you less than a minute to install and to configure the package.
 
-## Table of contents
-
-- [Installation](#installation)
-    - [Step 1: Composer](#step-1-composer)
-    - [Step 2: Service Provider](#step-2-service-provider)
-    - [Step 3: Migration](#step-3-migration)
-- [Configuration](#configuration)
-    - [Step 1: Create your bot](#step-1-create-your-bot)
-    - [Step 2: Create a *Manager* for your bot](#step-2-create-a-manager-for-your-bot)
-    - [Step 3: Add your bot's API Token to the Manager](#step-3-add-your-bots-api-token-to-the-manager)
-    - [Step 4: Register the bot in your application](#step-4-register-the-bot-in-your-application)
-    - [Step 5: Set up Webhook (optional)](#step-5-set-up-webhook-optional)
-- [Core Components](#core-components)
-    - [`\SumanIon\TelegramBot\TelegramBot`](#sumaniontelegrambottelegrambot)
-    - [`\SumanIon\TelegramBot\TelegramBotUser`](#sumaniontelegrambottelegrambotuser)
-    - [`\SumanIon\TelegramBot\TelegramBotPermission`](#sumaniontelegrambottelegrambotpermission)
-    - [`\SumanIon\TelegramBot\Manager`](#sumaniontelegrambotmanager)
-    - [`\SumanIon\TelegramBot\Update`](#sumaniontelegrambotupdate)
-    - [`\SumanIon\TelegramBot\Action`](#sumaniontelegrambotaction)
-- [Available methods](#available-methods)
-    - [class `TelegramBotUser`](#class-telegrambotuser)
-        - [`permissions()`](#permissions)
-        - [`getPermission($permission):TelegramBotPermission`](#getpermissionpermissiontelegrambotpermission)
-        - [`hasPermission($permission):bool`](#haspermissionpermissionbool)
-        - [`addPermission($permission):void`](#addpermissionpermissionvoid)
-        - [`removePermission($permission):void`](#removepermissionpermissionvoid)
-        - [`removeAllPermissions():void`](#removeallpermissionsvoid)
-
 ## Installation
 
 ### Step 1: Composer
@@ -448,72 +420,293 @@ public function handle()
 This time the user will receive the response message `Hello, User!`
 only when he/she will send a message starting with the word `hello`.
 
-# Available methods
+# Available methods and properties
 
-> **Note:** All available classes are within `\SumanIon\TelegramBot\` namespace.
+> **Note:** All classes are within `\SumanIon\TelegramBot\` namespace.
 
-### class `TelegramBotUser`
+#### class `TelegramBot`
 
-##### `permissions()`
+- [`users()`](#)
 
-`Eloquent` relationship which returns all permissions of the user.
+    `Eloquent` relationship which returns all users of the bot.
 
-##### `getPermission($permission):TelegramBotPermission`
+    *Example code:*
 
-This method just returns an instance of `TelegramBotPermission` based on the `$permission`.
+    ```php
+    $bot_manager = $bot->getManager();
 
-- `$permission` (`string`, `TelegramBotPermission`)
+    foreach ($bot->users as $bot_user) {
+        $bot_manager->sendMessage($bot_user, "Hello, {$bot_user->first_name}!");
+    }
+    ```
 
-##### `hasPermission($permission):bool`
+- [`getManager():Manager`](#)
 
-Use this method to check if user has a specific permission.
+    Get the manager of the current bot.
 
-- `$permission` (`string`, `TelegramBotPermission`)
+    *Example code:*
+
+    ```php
+    $bot_manager = $bot->getManager();
+    ```
+
+- [`static withManager($manager):TelegramBot`](#)
+
+    Search a bot based on it's Manager.
+
+    - `$manager` (`string`)
+
+    *Example code:*
+
+    ```php
+    $bot = TelegramBot::withManager('App\Bots\FirstTelegramBot');
+    ```
+
+#### class `TelegramBotUser`
+
+- [`permissions()`](#)
+
+    `Eloquent` relationship which returns all permissions of the user.
+
+- [`getPermission($permission):TelegramBotPermission`](#)
+
+    This method just returns an instance of `TelegramBotPermission`
+    based on the `$permission`.
+
+    - `$permission` (`string`, `TelegramBotPermission`)
+
+- [`hasPermission($permission):bool`](#)
+
+    Use this method to check if user has a specific permission.
+
+    - `$permission` (`string`, `TelegramBotPermission`)
+
+    *Example code:*
+
+    ```php
+    // Send a message to the user if he/she has required permission.
+    if ($bot_user->hasPermission('can_receive_notifications')) {
+        $bot_manager->sendMessage($bot_user, 'Hello!');
+    }
+    ```
+
+- [`addPermission($permission):void`](#)
+
+    This method will add a new Permission to the user.
+
+    - `$permission` (`string`, `TelegramBotPermission`)
+
+    *Example code:*
+
+    ```php
+    // This will search a Permission with the name of 'can_receive_notifications'
+    // and if it exists it will add that permission to the user.
+    // Note: to create a new permission use artisan command: telegarm:permission {name}
+    $bot_user->addPermission('can_receive_notifications');
+    ```
+
+- [`removePermission($permission):void`](#)
+
+    Remove a permission from the user.
+
+    - `$permission` (`string`, `TelegramBotPermission`)
+
+    *Example code:*
+
+    ```php
+    // This will remove a permission with name 'can_receive_notifications' from the user.
+    // If the user doesn't have this permission nothing will happen.
+    $bot_user->removePermission('can_receive_notifications');
+    ```
+
+- [`removeAllPermissions():void`](#)
+
+    Remove all permissions from the user.
+
+    *Example code:*
+
+    ```php
+    $bot_user->removeAllPermissions();
+    ```
+
+#### class `Update`
+
+An object of class `Update` contains all information
+about the incomming Update from Telegram.
+For more details on which properties are available for every Update check
+the official [Telegram Bot API Documentation](https://core.telegram.org/bots/api#update)
 
 *Example code:*
 
 ```php
-// Send a message to the user if it has required permission.
-if ($bot_user->hasPermission('can_receive_notifications')) {
-    $bot_manager->sendMessage($bot_user, 'Hello!');
-}
+// Get the text of the incomming message
+echo $update->message->text;
+
+// or
+echo $update->text;
 ```
 
-##### `addPermission($permission):void`
+#### class `Manager`
 
-This method will add a new Permission to the user.
+- [`getLastApiError():stdClass,null`](#)
 
-- `$permission` (`string`, `TelegramBotPermission`)
+    Sometimes API requests to the Telegram may fail.
+    When a request fails and you for example sent an `/getMe` request,
+    the Bot Manager will give you `null` response and to get
+    the actual error use `getLastApiError()`.
 
-*Example code:*
+- [`getMe()`](#)
 
-```php
-// This will search a Permission with the name of 'can_receive_notifications'
-// and if it exists it will add that permission to the user.
-// Note: to create a new permission use artisan command: telegarm:permission {name}
-$bot_user->addPermission('can_receive_notifications');
-```
+    Returns basic information about the bot.
+    For more details check the
+    [Official Documentation](https://core.telegram.org/bots/api#getme).
 
-##### `removePermission($permission):void`
+- [`sendMessage($user, $message, $options = []):stdClass,null`](#)
 
-Remove a permission from the user.
+    Sends a message to the `$user`.
 
-- `$permission` (`string`, `TelegramBotPermission`)
+    - `$user` (`TelegramBotUser`)
+    - `$message` (`string`)
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendmessage)
 
-*Example code:*
+- [`sendPhoto($user, $path, $options = []):stdClass,null`](#)
 
-```php
-// This will remove a permission with name 'can_receive_notifications' from the user.
-// If the user doesn't have this permission nothing will happen.
-$bot_user->removePermission('can_receive_notifications');
-```
+    Sends a photo to the `$user`.
 
-##### `removeAllPermissions():void`
+    - `$user` (`TelegramBotUser`)
+    - `$path` (`string`) - Full path to the photo.
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendphoto)
 
-Remove all permissions from the user.
+- [`sendAudio($user, $path, $options = []):stdClass,null`](#)
 
-*Example code:*
+    Sends an audio file to the `$user`.
 
-```php
-$bot_user->removeAllPermissions();
-```
+    - `$user` (`TelegramBotUser`)
+    - `$path` (`string`) - Full path to the audio.
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendaudio)
+
+- [`sendDocument($user, $path, $options = []):stdClass,null`](#)
+
+    Sends a document to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$path` (`string`) - Full path to the document.
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#senddocument)
+
+- [`sendSticker($user, $path, $options = []):stdClass,null`](#)
+
+    Sends a sticker to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$path` (`string`) - Full path to the sticker.
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendsticker)
+
+- [`sendVideo($user, $path, $options = []):stdClass,null`](#)
+
+    Sends a video to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$path` (`string`) - Full path to the video.
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendvideo)
+
+- [`sendVoice($user, $path, $options = []):stdClass,null`](#)
+
+    Sends a voice message to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$path` (`string`) - Full path to the voice message.
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendvoice)
+
+- [`sendLocation($user, $latitude, $longitude, $options = []):stdClass,null`](#)
+
+    Sends a location message to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$latitude` (`string`, `float`)
+    - `$longitude` (`string`, `float`)
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendlocation)
+
+- [`sendContact($user, $phone, $first_name, $last_name, $options = []):stdClass,null`](#)
+
+    Sends a contact to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$phone` (`string`)
+    - `$first_name` (`string`)
+    - `$last_name` (`string`)
+    - `$options` (`array`) -
+      [List available options](https://core.telegram.org/bots/api#sendcontact)
+
+- [`sendChatAction($user, $action, $options = []):stdClass,null`](#)
+
+    Sends a chat action to the `$user`.
+
+    - `$user` (`TelegramBotUser`)
+    - `$action` (`string`) -
+      [List available actions](https://core.telegram.org/bots/api#sendchataction)
+    - `$options` (`array`)
+
+> **Note:** For more details about the API requests and responses please check
+  the official [Telegram Bot API Documentation](https://core.telegram.org/bots/api).
+
+- [`getUpdates():array`](#)
+
+    This method is only available when you are not using Webhooks and
+    it returns a list of latest incomming Updates (max. 100).
+    [Learn more about `/getUpdates` requests](https://core.telegram.org/bots/api#getupdates).
+
+    > **Note:** We recommend you to use Webhooks instead of `/getUpdates` requests.
+
+- [`handleUpdates($updates):void`](#)
+
+    This method should only be used when you are not using Webhooks.
+    It iterates over all `$updates` and executes all Actions
+    from the Manager for each Update.
+
+    *Example code:*
+
+    ```php
+    // If you don't have an SSL certificate and Webhooks are not available to you,
+    // you can create an artisan command with the following code
+    // and schedule it to run every minute.
+    // This way you will process incomming updates and
+    // send responses to your users every minute.
+    $bot_manager->handleUpdates($bot_manager->getUpdates());
+    ```
+
+- [`notify($mixed, $options = []):void`](#)
+
+    Sends notifications to all users of the bot.
+
+    - `$mixed` (`string`, `closure`)
+    - `$options` (`array`)
+
+    *Example code:*
+
+    ```php
+    // Send simple text notifications to all users.
+    $bot_manager->notify('Welcome to our Bot!');
+
+    // Send simple text notifications to users
+    // with a permission to receive notifications.
+    $bot_manager->notify(function ($user, $manager) {
+        if ($user->hasPermission('can_receive_notifications')) {
+            $manager->sendMessage($user, 'Welcome to our Bot!');
+        }
+    });
+
+    // Send a photo to all users.
+    $bot_manager->notify(function ($user, $manager) {
+        $manager->sendPhoto($user, base_path('welcome.jpg'));
+    });
+    ```
+
+> **Note:** Documentation is not finished yet.
